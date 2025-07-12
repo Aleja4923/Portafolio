@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aleja Pinzón - Mente Digital</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&family=Fira+Code:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0d0d0d;
+            color: #e5e5e5;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        /* Cursor personalizado */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #8b5cf6;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor.active {
+            transform: scale(2);
+            border-color: #00FFD1;
+        }
+
+        /* Pantalla de boot */
+        .boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0d0d0d;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 1s ease;
+        }
+
+        .boot-text {
+            font-family: 'Fira Code', monospace;
+            font-size: 16px;
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: typewriter 2s steps(40) forwards;
+        }
+
+        @keyframes typewriter {
+            from { width: 0; opacity: 1; }
+            to { width: 100%; opacity: 1; }
+        }
+
+        .progress-bar {
+            width: 300px;
+            height: 4px;
+            background: #1f2937;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #00FFD1);
+            width: 0%;
+            animation: loading 3s ease-in-out forwards;
+        }
+
+        @keyframes loading {
+            to { width: 100%; }
+        }
+
+        /* Interfaz principal */
+        .main-interface {
+            opacity: 0;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .main-interface.active {
+            opacity: 1;
+            transition: opacity 1s ease;
+        }
+
+        /* Partículas de fondo */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #8b5cf6;
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+            opacity: 0.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Sistema de navegación por nodos */
+        .node-system {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            width: 80vw;
+            height: 80vh;
+            max-width: 1200px;
+            max-height: 800px;
+        }
+
+        .central-node {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, #8b5cf6, #6d28d9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.5);
+        }
+
+        .central-node:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.8);
+        }
+
+        .central-node h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            text-align: center;
+            color: white;
+            font-weight: 700;
+        }
+
+        .satellite-node {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            background: rgba(139, 92, 246, 0.2);
+            border: 2px solid #8b5cf6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .satellite-node:hover {
+            background: rgba(139, 92, 246, 0.4);
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .satellite-node span {
+            font-size: 12px;
+            text-align: center;
+            color: #e5e5e5;
+            font-weight: 500;
+        }
+
+        /* Posicionamiento de nodos satélite */
+        .node-1 { top: 10%; left: 50%; transform: translate(-50%, -50%); }
+        .node-2 { top: 25%; right: 15%; transform: translate(50%, -50%); }
+        .node-3 { bottom: 25%; right: 15%; transform: translate(50%, 50%); }
+        .node-4 { bottom: 10%; left: 50%; transform: translate(-50%, 50%); }
+        .node-5 { bottom: 25%; left: 15%; transform: translate(-50%, 50%); }
+        .node-6 { top: 25%; left: 15%; transform: translate(-50%, -50%); }
+
+        /* Líneas conectoras */
+        .connector {
+            position: absolute;
+            background: linear-gradient(45deg, transparent, #8b5cf6, transparent);
+            height: 1px;
+            opacity: 0.3;
+            transform-origin: left center;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+        }
+
+        /* Panel de contenido */
+        .content-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90vw;
+            height: 90vh;
+            max-width: 1000px;
+            max-height: 700px;
+            background: rgba(13, 13, 13, 0.95);
+            border: 1px solid #8b5cf6;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            display: none;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .content-panel.active {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 30px;
+            height: 30px;
+            border: none;
+            background: none;
+            color: #8b5cf6;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #00FFD1;
+            transform: rotate(90deg);
+        }
+
+        .content-header {
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .content-body {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #e5e5e5;
+        }
+
+        /* Terminal simulado */
+        .terminal {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 400px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #8b5cf6;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: #00FFD1;
+            z-index: 500;
+            backdrop-filter: blur(10px);
+        }
+
+        .terminal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #8b5cf6;
+        }
+
+        .terminal-title {
+            font-size: 10px;
+            color: #8b5cf6;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .terminal-control {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #8b5cf6;
+        }
+
+        .terminal-input {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .terminal-prompt {
+            color: #8b5cf6;
+        }
+
+        .terminal-command {
+            background: none;
+            border: none;
+            color: #00FFD1;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            outline: none;
+            flex: 1;
+        }
+
+        .terminal-output {
+            color: #e5e5e5;
+            margin: 5px 0;
+            animation: typewriter 1s steps(30) forwards;
+        }
+
+        /* Estilos para contenido del panel */
+        .profile-container {
+            display: grid;
+            gap: 30px;
+        }
+
+        .profile-description {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #e5e5e5;
+            margin-bottom: 30px;
+        }
+
+        .profile-skills h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #8b5cf6;
+            margin-bottom: 20px;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .skill-item {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid #8b5cf6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .skill-item:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para proyectos */
+        .projects-container {
+            display: grid;
+            gap: 30px;
+        }
+
+        .project-card {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .project-card:hover {
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #8b5cf6;
+        }
+
+        .project-date {
+            font-size: 14px;
+            color: #a3a3a3;
+            background: rgba(139, 92, 246, 0.1);
+            padding: 5px 10px;
+            border-radius: 15px;
+        }
+
+        .project-description {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #e5e5e5;
+            margin-bottom: 20px;
+        }
+
+        .project-tech {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tech-tag {
+            background: rgba(0, 255, 209, 0.1);
+            color: #00FFD1;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(0, 255, 209, 0.3);
+        }
+
+        /* Estilos para skills */
+        .skills-container {
+            display: grid;
+            gap: 40px;
+        }
+
+        .tech-section h3, .languages-section h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #8b5cf6;
+            margin-bottom: 20px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 20px;
+        }
+
+        .tech-card {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .tech-card:hover {
+            background: rgba(139, 92, 246, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(139, 92, 246, 0.3);
+        }
+
+        .tech-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .tech-card span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #e5e5e5;
+        }
+
+        .language-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .language-name {
+            font-weight: 500;
+            color: #e5e5e5;
+        }
+
+        .language-level {
+            color: #00FFD1;
+            font-size: 14px;
+        }
+
+        /* Estilos para contacto */
+        .contact-container {
+            display: grid;
+            gap: 30px;
+        }
+
+        .contact-intro {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .contact-intro p {
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .contact-philosophy {
+            font-style: italic;
+            color: #a3a3a3;
+        }
+
+        .contact-links {
+            display: grid;
+            gap: 20px;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: rgba(139, 92, 246, 0.1);
+            transform: translateX(10px);
+        }
+
+        .contact-icon {
+            font-size: 30px;
+            width: 50px;
+            text-align: center;
+        }
+
+        .contact-info h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #8b5cf6;
+            margin-bottom: 5px;
+        }
+
+        .contact-link {
+            color: #00FFD1;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+
+        .contact-footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .contact-footer em {
+            color: #8b5cf6;
+            font-size: 16px;
+        }
+
+        /* Estilos para timeline */
+        .timeline-container {
+            display: grid;
+            gap: 30px;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+
+        .timeline-date {
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .timeline-content {
+            flex: 1;
+        }
+
+        .timeline-content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            color: #8b5cf6;
+            margin-bottom: 5px;
+        }
+
+        .timeline-institution {
+            color: #00FFD1;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+
+        .timeline-description {
+            color: #a3a3a3;
+            line-height: 1.6;
+        }
+
+        .experience-note {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .experience-note p {
+            margin-bottom: 10px;
+        }
+
+        .experience-note strong {
+            color: #8b5cf6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .node-system {
+                width: 95vw;
+                height: 70vh;
+            }
+            
+            .central-node {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .satellite-node {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .terminal {
+                width: 300px;
+                height: 150px;
+                font-size: 10px;
+            }
+            
+            .content-panel {
+                width: 95vw;
+                height: 85vh;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Cursor personalizado -->
+    <div class="cursor"></div>
+
+    <!-- Pantalla de boot -->
+    <div class="boot-screen" id="bootScreen">
+        <div class="boot-text">Inicializando mente digital...</div>
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+    </div>
+
+    <!-- Partículas de fondo -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Interfaz principal -->
+    <div class="main-interface" id="mainInterface">
+        <!-- Sistema de nodos -->
+        <div class="node-system">
+            <!-- Nodo central -->
+            <div class="central-node hover-effect" id="centralNode">
+                <h1>ALEJA<br>PINZÓN</h1>
+            </div>
+
+            <!-- Nodos satélite -->
+            <div class="satellite-node node-1 hover-effect" data-section="perfil">
+                <span>PERFIL</span>
+            </div>
+            <div class="satellite-node node-2 hover-effect" data-section="proyectos">
+                <span>PROYECTOS</span>
+            </div>
+            <div class="satellite-node node-3 hover-effect" data-section="skills">
+                <span>SKILLS</span>
+            </div>
+            <div class="satellite-node node-4 hover-effect" data-section="contacto">
+                <span>CONTACTO</span>
+            </div>
+            <div class="satellite-node node-5 hover-effect" data-section="experiencia">
+                <span>EXPERIENCIA</span>
+            </div>
+            <div class="satellite-node node-6 hover-effect" data-section="vision">
+                <span>VISIÓN</span>
+            </div>
+
+            <!-- Líneas conectoras (se generan con JavaScript) -->
+        </div>
+
+        <!-- Panel de contenido -->
+        <div class="content-panel" id="contentPanel">
+            <button class="close-btn" id="closeBtn">×</button>
+            <div class="content-header" id="contentHeader">Título</div>
+            <div class="content-body" id="contentBody">Contenido...</div>
+        </div>
+
+        <!-- Terminal simulado -->
+        <div class="terminal">
+            <div class="terminal-header">
+                <div class="terminal-title">mind.terminal</div>
+                <div class="terminal-controls">
+                    <div class="terminal-control"></div>
+                    <div class="terminal-control"></div>
+                    <div class="terminal-control"></div>
+                </div>
+            </div>
+            <div class="terminal-output">Sistema operativo mental v2.0</div>
+            <div class="terminal-output">Navegación: haz clic en los nodos</div>
+            <div class="terminal-output">Comando especial: 'whoami'</div>
+            <div class="terminal-input">
+                <span class="terminal-prompt">></span>
+                <input type="text" class="terminal-command" id="terminalInput" placeholder="Escribe un comando...">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Cursor personalizado
+        const cursor = document.querySelector('.cursor');
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.style.left = mouseX + 'px';
+            cursor.style.top = mouseY + 'px';
+        });
+
+        // Activar cursor en elementos interactivos
+        document.querySelectorAll('.hover-effect, .close-btn').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
+
+        // Secuencia de boot
+        setTimeout(() => {
+            document.getElementById('bootScreen').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('bootScreen').style.display = 'none';
+                document.getElementById('mainInterface').classList.add('active');
+            }, 1000);
+        }, 3500);
+
+        // Generar partículas
+        function createParticles() {
+            const particles = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                particles.appendChild(particle);
+            }
+        }
+
+        // Generar líneas conectoras
+        function createConnectors() {
+            const nodeSystem = document.querySelector('.node-system');
+            const centralNode = document.getElementById('centralNode');
+            const satellites = document.querySelectorAll('.satellite-node');
+
+            satellites.forEach((satellite, index) => {
+                const connector = document.createElement('div');
+                connector.classList.add('connector');
+                
+                // Calcular posición y rotación
+                const centralRect = centralNode.getBoundingClientRect();
+                const satelliteRect = satellite.getBoundingClientRect();
+                
+                const deltaX = satelliteRect.left - centralRect.left;
+                const deltaY = satelliteRect.top - centralRect.top;
+                const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                const angle = Math.atan2(deltaY, deltaX) * (180 / Math.PI);
+                
+                connector.style.width = distance + 'px';
+                connector.style.transform = `rotate(${angle}deg)`;
+                connector.style.left = '50%';
+                connector.style.top = '50%';
+                connector.style.transformOrigin = 'left center';
+                
+                nodeSystem.appendChild(connector);
+            });
+        }
+
+        // Contenido de las secciones
+        const sectionContent = {
+            perfil: {
+                title: "PERFIL PROFESIONAL",
+                content: `
+                    <div class="profile-container">
+                        <div class="profile-main">
+                            <p class="profile-description">Desarrolladora junior fullstack interesada por la tecnología y el desarrollo de software. Con habilidades autodidactas y una fuerte motivación para aprender y crecer en el ámbito de la programación, destacando por una capacidad de análisis, creatividad y enfoque en la resolución de problemas comprometida con contribuir en proyectos que impulsen la innovación y la eficiencia, adquiriendo experiencia y conocimientos para crecer profesionalmente en el área de software.</p>
+                        </div>
+                        <div class="profile-skills">
+                            <h3>Competencias Clave</h3>
+                            <div class="skills-grid">
+                                <div class="skill-item">Liderazgo</div>
+                                <div class="skill-item">Pensamiento estratégico</div>
+                                <div class="skill-item">Comunicador</div>
+                                <div class="skill-item">Gestión del tiempo</div>
+                                <div class="skill-item">Innovador</div>
+                                <div class="skill-item">Pensamiento Ágil</div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            proyectos: {
+                title: "EXPERIMENTOS DIGITALES",
+                content: `
+                    <div class="projects-container">
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3>Sistema de Gestión Académica</h3>
+                                <span class="project-date">Febrero 2024</span>
+                            </div>
+                            <p class="project-description">Desarrollo de un programa que permite llevar el seguimiento académico de todos los campers que ingresan matriculados en el programa intensivo de programación contando con diferentes roles con sus respectivos permisos y organizaciones.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">MongoDB</span>
+                                <span class="tech-tag">Html</span>
+                                <span class="tech-tag">CSS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3>Kario Media - Panel de Gestión</h3>
+                                <span class="project-date">Abril 2024</span>
+                            </div>
+                            <p class="project-description">Desarrollo de un aplicativo web que muestra el panel de gestionamiento de proyectos y sus módulos necesarios para la empresa "Kario Media", que realiza licitaciones públicas y privadas de varios nichos de negocio.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">Html</span>
+                                <span class="tech-tag">CSS</span>
+                            </div>
+                        </div>
+                        
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3>Simulador Fórmula 1</h3>
+                                <span class="project-date">Mayo 2024</span>
+                            </div>
+                            <p class="project-description">Desarrollo de una página de simulación interactiva de Fórmula 1 basada en tecnologías web modernas, permitiendo a los usuarios gestionar y personalizar su experiencia de carrera a través de un sistema dinámico de administración de circuitos, pilotos y vehículos.</p>
+                            <div class="project-tech">
+                                <span class="tech-tag">JavaScript</span>
+                                <span class="tech-tag">Html</span>
+                                <span class="tech-tag">CSS</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            skills: {
+                title: "ARSENAL TECNOLÓGICO",
+                content: `
+                    <div class="skills-container">
+                        <div class="tech-section">
+                            <h3>Lenguajes & Frameworks</h3>
+                            <div class="tech-grid">
+                                <div class="tech-card">
+                                    <div class="tech-icon">🐍</div>
+                                    <span>Python</span>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">💛</div>
+                                    <span>JavaScript</span>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">🍃</div>
+                                    <span>MongoDB</span>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">🏗️</div>
+                                    <span>HTML</span>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">🎨</div>
+                                    <span>CSS</span>
+                                </div>
+                                <div class="tech-card">
+                                    <div class="tech-icon">🗄️</div>
+                                    <span>MySQL</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="languages-section">
+                            <h3>Idiomas</h3>
+                            <div class="language-item">
+                                <span class="language-name">Inglés</span>
+                                <span class="language-level">B1 - Intermedio</span>
+                            </div>
+                            <div class="language-item">
+                                <span class="language-name">Español</span>
+                                <span class="language-level">Nativo</span>
+                            </div>
+                        </div>
+                    </div>
+                `
+            },
+            contacto: {
+                title: "ESTABLECER CONEXIÓN",
+                content: `
+                    <div class="contact-container">
+                        <div class="contact-intro">
+                            <p>¿Listo para colaborar en el siguiente experimento digital?</p>
+                            <p class="contact-philosophy">Prefiero conversaciones que comiencen con una pregunta interesante o un desafío técnico.</p>
+                        </div>
+                        
+                        <div class="contact-links">
+                            <div class="contact-item">
+                                <div class="contact-icon">💼</div>
+                                <div class="contact-info">
+                                    <h4>LinkedIn</h4>
+                                    <a href="#" class="contact-link">Conectar profesionalmente</a>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">🚀</div>
+                                <div class="contact-info">
+                                    <h4>GitHub</h4>
+                                    <a href="#" class="contact-link">Explorar repositorios</a>
+                                </div>
+                            </div>
+                            
+                            <div class="contact-item">
+                                <div class="contact-icon">📁</div>
+                                <div class="contact-info">
+                                    <h4>Portfolio</h4>
+                                    <a href="#" class="contact-link">Ver proyectos completos</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-footer">
+                            <p><em>"Las mejores ideas nacen en la intersección de mentes curiosas."</em></p>
+                            <p>Respondo dentro de 24 horas. Si no lo hago, es porque estoy debuggeando algún problema fascinante.</p>
+                        </div>
+                    </div>
+                `
+            },
+            experiencia: {
+                title: "HISTORIAL DE EJECUCIÓN",
+                content: `
+                    <div class="timeline-container">
+                        <div class="timeline-item">
+                            <div class="timeline-date">2024</div>
+                            <div class="timeline-content">
+                                <h3>Bachiller</h3>
+                                <p class="timeline-institution">Colegio Cooperativo Comfenalco</p>
+                                <p class="timeline-description">Graduación con enfoque en ciencias exactas y preparación para estudios superiores en tecnología.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-item">
+                            <div class="timeline-date">2025</div>
+                            <div class="timeline-content">
+                                <h3>Junior Fullstack</h3>
+                                <p class="timeline-institution">Campuslands</p>
+                                <p class="timeline-description">Programa intensivo de desarrollo fullstack con enfoque en tecnologías modernas y metodologías ágiles.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="experience-note">
+                            <p><strong>Estado actual:</strong> En proceso de consolidación de conocimientos y búsqueda de oportunidades profesionales.</p>
+                            <p><strong>Enfoque:</strong> Desarrollo web fullstack con especialización en JavaScript y bases de datos.</p>
+                        </div>
+                    </div>
+                `
+            },
+            vision: {
+                title: "VISIÓN SISTÉMICA",
+                content: `
+                    <p><strong>Misión:</strong> Crear tecnología que amplifique el potencial humano</p>
+                    <br>
+                    <p><strong>Visión:</strong> Un futuro donde la tecnología sea invisible, intuitiva y empoderador</p>
+                    <br>
+                    <p><strong>Valores:</strong></p>
+                    <p>• Innovación consciente</p>
+                    <p>• Simplicidad elegante</p>
+                    <p>• Impacto sostenible</p>
+                    <p>• Colaboración auténtica</p>
+                    <br>
+                    <p><strong>Filosofía:</strong> "La innovación nace del caos estructurado"</p>
+                    <br>
+                    <p>Cada línea de código es una oportunidad para mejorar la experiencia humana con la tecnología.</p>
+                `
+            }
+        };
+
+        // Funcionalidad de nodos
+        document.querySelectorAll('.satellite-node').forEach(node => {
+            node.addEventListener('click', () => {
+                const section = node.dataset.section;
+                const content = sectionContent[section];
+                
+                if (content) {
+                    document.getElementById('contentHeader').textContent = content.title;
+                    document.getElementById('contentBody').innerHTML = content.content;
+                    document.getElementById('contentPanel').classList.add('active');
+                }
+            });
+        });
+
+        // Cerrar panel
+        document.getElementById('closeBtn').addEventListener('click', () => {
+            document.getElementById('contentPanel').classList.remove('active');
+        });
+
+        // Terminal interactivo
+        const terminalInput = document.getElementById('terminalInput');
+        const terminalOutput = document.querySelector('.terminal');
+
+        terminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const command = terminalInput.value.toLowerCase();
+                let response = '';
+                
+                switch (command) {
+                    case 'whoami':
+                        response = 'Aleja Pinzón - Arquitecta de experiencias digitales';
+                        break;
+                    case 'help':
+                        response = 'Comandos: whoami, help, clear, secret';
+                        break;
+                    case 'clear':
+                        // Limpiar terminal
+                        const outputs = document.querySelectorAll('.terminal-output');
+                        outputs.forEach(output => output.remove());
+                        terminalInput.value = '';
+                        return;
+                    case 'secret':
+                        response = '🚀 Easter egg desbloqueado: "El código es poesía ejecutable"';
+                        break;
+                    default:
+                        response = `Comando no reconocido: ${command}`;
+                }
+                
+                const outputDiv = document.createElement('div');
+                outputDiv.classList.add('terminal-output');
+                outputDiv.textContent = '> ' + command;
+                terminalOutput.insertBefore(outputDiv, terminalOutput.lastElementChild);
+                
+                const responseDiv = document.createElement('div');
+                responseDiv.classList.add('terminal-output');
+                responseDiv.textContent = response;
+                terminalOutput.insertBefore(responseDiv, terminalOutput.lastElementChild);
+                
+                terminalInput.value = '';
+            }
+        });
+
+        // Nodo central interactivo
+        document.getElementById('centralNode').addEventListener('click', () => {
+            const nodes = document.querySelectorAll('.satellite-node');
+            nodes.forEach((node, index) => {
+                setTimeout(() => {
+                    node.style.animation = 'pulse 0.5s ease-in-out';
+                }, index * 100);
+            });
+        });
+
+        // Inicializar
+        createParticles();
+        setTimeout(createConnectors, 1000);
+
+        // Atajos de teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('contentPanel').classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
