@@ -312,10 +312,3 @@
         const profileImage = document.getElementById('profileImage');
         profileImage.src = imageSrc;
     }
-
-    // Atajos de teclado
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-            document.getElementById('contentPanel').classList.remove('active');
-        }
-    });
