@@ -294,49 +294,6 @@
         document.getElementById('contentPanel').classList.remove('active');
     });
 
-    // Terminal interactivo
-    const terminalInput = document.getElementById('terminalInput');
-    const terminalOutput = document.querySelector('.terminal');
-
-    terminalInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            const command = terminalInput.value.toLowerCase();
-            let response = '';
-            
-            switch (command) {
-                case 'whoami':
-                    response = 'Aleja Pinzón - Arquitecta de experiencias digitales';
-                    break;
-                case 'help':
-                    response = 'Comandos: whoami, help, clear, secret';
-                    break;
-                case 'clear':
-                    // Limpiar terminal
-                    const outputs = document.querySelectorAll('.terminal-output');
-                    outputs.forEach(output => output.remove());
-                    terminalInput.value = '';
-                    return;
-                case 'secret':
-                    response = '🚀 Easter egg desbloqueado: "El código es poesía ejecutable"';
-                    break;
-                default:
-                    response = `Comando no reconocido: ${command}`;
-            }
-            
-            const outputDiv = document.createElement('div');
-            outputDiv.classList.add('terminal-output');
-            outputDiv.textContent = '> ' + command;
-            terminalOutput.insertBefore(outputDiv, terminalOutput.lastElementChild);
-            
-            const responseDiv = document.createElement('div');
-            responseDiv.classList.add('terminal-output');
-            responseDiv.textContent = response;
-            terminalOutput.insertBefore(responseDiv, terminalOutput.lastElementChild);
-            
-            terminalInput.value = '';
-        }
-    });
-
     // Nodo central interactivo
     document.getElementById('centralNode').addEventListener('click', () => {
         const nodes = document.querySelectorAll('.satellite-node');
@@ -350,6 +307,11 @@
     // Inicializar
     createParticles();
     setTimeout(createConnectors, 1000);
+
+    function changeProfileImage(imageSrc) {
+        const profileImage = document.getElementById('profileImage');
+        profileImage.src = imageSrc;
+    }
 
     // Atajos de teclado
     document.addEventListener('keydown', (e) => {
